@@ -18,8 +18,11 @@ class TextSuggest extends React.Component {
     };
 
     handleInit = (init_value) => {
-        if (!this.props.form.schema || !this.props.form.schema.enum)
+        console.log("value", init_value);
+        if (!this.props.form.schema || !this.props.form.schema.enum) {
+            console.log(">>", init_value.toString());
             return init_value.toString()
+        }
 
         const names = this.props.form.schema.enumNames || this.props.form.schema.enum;
         const values = this.props.form.schema.enum;
@@ -29,7 +32,7 @@ class TextSuggest extends React.Component {
         console.log("names[values.indexOf(init_value)]", names[values.indexOf(init_value)]);
         const init_value_name = names[values.indexOf(init_value)];
 
-        // this.handleUpdate({[dataSourceConfig['value']]: init_value, [dataSourceConfig['text']]: init_value_name})
+        this.handleUpdate({[dataSourceConfig['value']]: init_value, [dataSourceConfig['text']]: init_value_name})
 
         return init_value_name || init_value.toString()
     }

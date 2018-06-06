@@ -17,7 +17,6 @@ import FieldSet from './FieldSet';
 import _ from 'lodash';
 
 class SchemaForm extends React.Component {
-
     mapper = {
         'number': Number,
         'text': Text,
@@ -55,11 +54,14 @@ class SchemaForm extends React.Component {
           return null;
         }
 
+        console.log("this is", this);
+
         const key = form.key && form.key.join(".") || index;
-        return <Field model={model} form={form} key={key} onChange={onChange} mapper={mapper} builder={this.builder}/>
+        return <Field onRef={ref => (this.childs = ref)} model={model} form={form} key={key} onChange={onChange} mapper={mapper} builder={this.builder}/>
     }
 
     render() {
+
         let merged = utils.merge(this.props.schema, this.props.form, this.props.ignore, this.props.option);
         //console.log('SchemaForm merged = ', JSON.stringify(merged, undefined, 2));
         let mapper = this.mapper;
@@ -67,8 +69,29 @@ class SchemaForm extends React.Component {
             mapper = _.merge(this.mapper, this.props.mapper);
         }
         let forms = merged.map(function(form, index) {
-            return this.builder(form, this.props.model, index, this.onChange, mapper);
+            // return this.builder(form, this.props.model, index, this.onChange, mapper);
+            const model = this.props.model;
+            const onChange = this.onChange;
+            var type = form.type;
+            let Field = this.mapper[type];
+            if(!Field) {
+              console.log('Invalid field: \"' + form.key[0] + '\"!');
+              return null;
+            }
+
+            if(form.condition && utils.safeEval(form.condition, {model}) === false) {
+              return null;
+            }
+
+            console.log("this is", this);
+
+            const key = form.key && form.key.join(".") || index;
+            return <Field onRef={ref => (this.childs = ref)} model={model} form={form} key={key} onChange={onChange} mapper={mapper} builder={this.builder}/>
+
         }.bind(this));
+
+        console.log("childs", this.childs);
+        console.log("childs2", this.props.children);
 
         return (
             <div style={{width: '100%'}} className={'SchemaForm ' + this.props.className}>{forms}</div>
