@@ -3,16 +3,29 @@
  */
 import React from 'react';
 import ComposedComponent from './ComposedComponent';
-import RaisedButton from 'material-ui/RaisedButton';
 import FileIcon from 'material-ui/svg-icons/editor/attach-file';
+import Dropzone from 'react-dropzone';
 
+const styles = {
+    dropzone: {
+        borderStyle: "dashed",
+        borderRadius: "10px",
+        padding: "10px",
+        borderWidth: "2px",
+    }
+}
 
 class Binary extends React.Component {
+    constructor() {
+      super()
+      this.files = [];
+    }
 
-    handleUpdate(selectorFiles: FileList)
-    {
+    handleUpdate = (selectorFiles: FileList) => {
+        this.files = Object.assign([], this.files, selectorFiles)
+
         const {key, type} = this.props.form
-        const file_attachment = selectorFiles[0];
+        const file_attachment = selectorFiles;
 
         return this.props.onChange(key, file_attachment, type, this.props.form)
     }
@@ -20,26 +33,44 @@ class Binary extends React.Component {
     render() {
         // console.log('Binary', this.props);
 
-        return (
-            <div className={this.props.form.htmlClass}>
-                <RaisedButton
-                    containerElement='label'
-                    disabled={this.props.form.readonly}
-                    // errorText={this.props.error}
-                    label={this.props.form.placeholder || "Puja un fitxer"}
-                    style={this.props.form.style || {width: '100%'}}
-                >
-                    <FileIcon/>
-                    <input
-                        type="file"
-                        // accept="image/*"
-                        // style={{"display":"none"}}
-                        onChange={ (e) => this.handleUpdate(e.target.files) }
-                        label={this.props.form.title || "Upload a file"}
-                    />
-                </RaisedButton>
-
+        const description = (
+            <div>
+                <p><FileIcon/></p>
+                <p>Drag some files here, or click to select files to upload.</p>
             </div>
+        );
+
+        // default all mime
+        const mime_types = [];
+
+        return (
+          <section>
+            <div className="dropzone">
+              <h4>{this.props.form.title || "Upload a file"}</h4>
+
+              <Dropzone
+                disabled={this.props.form.readonly}
+                accept={this.props.form.mime_types || mime_types}
+                style={{...styles.dropzone, ...this.props.form.style}}
+                onDrop={(accepted, rejected) => { this.handleUpdate(accepted) }}
+              >
+
+                {({ isDragActive, isDragReject, acceptedFiles, rejectedFiles }) => {
+                  if (isDragActive) {
+                    return this.props.form.authorized_file_message || "This file is authorized";
+                  }
+                  if (isDragReject) {
+                    return this.props.form.unauthorized_file_message || "Unauthorized file type";
+                  }
+
+                  return acceptedFiles.length?
+                  		acceptedFiles.map(f => <li>{f.name}</li>)
+                        :
+                        this.props.description || description;
+                }}
+              </Dropzone>
+            </div>
+          </section>
         );
     }
 }
