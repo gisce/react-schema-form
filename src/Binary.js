@@ -32,7 +32,6 @@ class Binary extends React.Component {
 
     render() {
         // console.log('Binary', this.props);
-
         const description = (
             <div>
                 <p><FileIcon/></p>
@@ -40,7 +39,7 @@ class Binary extends React.Component {
             </div>
         );
 
-        // default all mime
+        // default all mime types
         const mime_types = [];
 
         return (
@@ -66,7 +65,7 @@ class Binary extends React.Component {
                   return acceptedFiles.length?
                   		acceptedFiles.map(f => <li>{f.name}</li>)
                         :
-                        this.props.description || description;
+                        this.props.form.description || description;
                 }}
               </Dropzone>
             </div>
